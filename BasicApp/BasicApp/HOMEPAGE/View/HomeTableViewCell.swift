@@ -9,23 +9,30 @@
 import UIKit
 import SnapKit
 
-class HomeTableViewCell: UITableViewCell {
+class HomeTableViewCell: UITableViewCell, UITextFieldDelegate {
     static let identifier = "HomePageCell"
     
+    var delegate: HomeDelegate?
     
     /// Cell view model (to edit raw data to approriate cell values)
     var cellViewModel : HomeCellViewModel? {
         didSet {
-            titleLabel.text = cellViewModel?.title
+            titleTextField.text = cellViewModel?.title
             descriptionLabel.text = cellViewModel?.description
             categoryLabel.text = cellViewModel?.category
         }
     }
     
+//    var tapView: UIView = {
+//        var title = UIView()
+//        title.backgroundColor = .clear
+//        return title
+//    }()
+    
     // title
-    var titleLabel: UILabel = {
-        var title = UILabel()
-        title.text = "Test"
+    var titleTextField: UITextField = {
+        var title = UITextField()
+        title.placeholder = "Type title here..."
         return title
     }()
     
@@ -45,8 +52,27 @@ class HomeTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.backgroundColor = .clear
+        self.backgroundColor = .black
         setupCellLayout()
+    }
+    
+    
+    func editMode() {
+        descriptionLabel.isHidden = true
+        
+    }
+    
+    // MARK: Return to next textfield
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool
+    {
+        if let nextField = textField.superview?.viewWithTag(textField.tag + 1) as? UITextField {
+            nextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+            delegate?.finishedEditing(at: textField.tag, title: titleTextField.text ?? "ERROR", category: categoryLabel.text ?? "ERROR")
+            return true;
+        }
+        return false
     }
     
     
@@ -56,17 +82,22 @@ class HomeTableViewCell: UITableViewCell {
     }
     
     func setupCellLayout() {
-        addSubview(titleLabel)
+        descriptionLabel.isHidden = false
+        
+        addSubview(titleTextField)
         addSubview(descriptionLabel)
         addSubview(categoryLabel)
+//        addSubview(tapView)
         
-        titleLabel.snp.makeConstraints { (make) in
+        titleTextField.delegate = self
+        
+        titleTextField.snp.makeConstraints { (make) in
             make.centerY.equalTo(self)
             make.left.equalTo(self).offset(10)
         }
         
         descriptionLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(titleLabel.snp.bottom).offset(5)
+            make.top.equalTo(titleTextField.snp.bottom).offset(5)
             make.left.equalTo(self).offset(10)
         }
         
@@ -74,6 +105,10 @@ class HomeTableViewCell: UITableViewCell {
             make.centerY.equalTo(self)
             make.right.equalTo(self).offset(-10)
         }
+        
+//        tapView.snp.makeConstraints { (make) in
+//            make.left.right.top.bottom.equalTo(self)
+//        }
     }
     
 

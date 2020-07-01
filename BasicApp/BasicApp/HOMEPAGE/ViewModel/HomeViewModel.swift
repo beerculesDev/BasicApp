@@ -47,6 +47,11 @@ class HomeViewModel {
         return HomeCellViewModel(title: reminder.title, category: reminder.category, description: reminder.description)
     }
     
+    /// Create cell viewModel from struct
+    func appendCellViewModel(_ reminder: HomeCellViewModel ) {
+        self.cellViewModels.append(reminder)
+    }
+    
     func createReminders() {
         var rawData: [Reminder] = [
             Reminder(title: "Buy condoms", category: "🛍", description: "XXL"),
